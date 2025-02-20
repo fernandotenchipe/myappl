@@ -1,14 +1,12 @@
 /* eslint-disable no-unused-vars */
 import './App.css';
 import {useState} from 'react';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Button from './components/Button';
-import List from './components/List';
-import Add from './components/Add';
+import List from './pages/List';
+import Add from './pages/Add';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ResponsiveAppBar from './components/AppBar';
-import CredentialsSignInPage from './components/Login';
+import  Login  from './pages/Login';
+import Home from './pages/Home';
 
 function App() {
   const [items, setItems] = useState([
@@ -18,6 +16,8 @@ function App() {
     ]);
 
   let [count, setCount] = useState(0);
+  const [islogin, setisLogin] = useState(false);
+
   const sum = () => {
     setCount(count + 1);
     console.log(count);
@@ -36,17 +36,30 @@ function App() {
   const del = (id) => {
     setItems(items.filter((item) => item.id !== id));
   }
+
+  const login = (user) =>{
+    if(user.username === "tenchis@gmail.com" && user.password === "password"){
+      setisLogin(true);}
+    return islogin;
+  }
+
+  const setlogout = () => {
+    setisLogin(false);
+  }
+
   return (
 <div>
   <BrowserRouter>
-  <ResponsiveAppBar />
-    <Header />
+  {islogin && <ResponsiveAppBar 
+  setlogout={setlogout} />}
+
       <Routes>
-        <Route path="/" element={<CredentialsSignInPage/>}/>
+        <Route path="/" element={<Login login = {login}/>}/>
         <Route path="/add" element={<Add add={add}/>}/>
         <Route path="/items" element={<List items={items} ondelete={del}/>}/>
+        <Route path="/home" element={<Home/>}/>
       </Routes> 
-    <Footer/>
+
   </BrowserRouter>
   
   {/* {count}
