@@ -6,7 +6,7 @@ const sqlConfig = {
     server: process.env.DB_SERVER,
     options: {
       encrypt: true, // for azure
-      trustServerCertificate: false // change to true for local dev / self-signed certs
+      trustServerCertificate: true // change to true for local dev / self-signed certs
     }
   }
 
