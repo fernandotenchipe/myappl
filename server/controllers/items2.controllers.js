@@ -19,8 +19,7 @@ export const postItem = async(req, res ) =>{
 
     
 export const putItem = async(req, res ) =>{
-    const item = await Item.findByidAndUpdate(req.
-        params.id,req.body, {
+    const item = await Item.findByidAndUpdate(req.params.id,req.body, {
             new:true
         });
     res.json(item);
