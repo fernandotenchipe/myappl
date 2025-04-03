@@ -1,44 +1,35 @@
 /* eslint-disable no-unused-vars */
 import './App.css';
-import {use, useState} from 'react';
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
 import List from './pages/List';
 import Add from './pages/Add';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ResponsiveAppBar from './components/AppBar';
-import  Login  from './pages/Login';
+import Login from './pages/Login';
 import Home from './pages/Home';
-import { useEffect } from 'react';
-
+import CreateUser from './pages/CreateUser'; // Asumo que lo agregarás tú mismo
 
 function App() {
   const [items, setItems] = useState([]);
-  // const [count, setCount] = useState(0);
-  const [isLogin, setisLogin] = useState(false);
-  useEffect(() => { 
-    if(isLogin) {
+  const [isLogin, setIsLogin] = useState(false);
+
+  useEffect(() => {
+    if (isLogin) {
       getItems();
     }
   }, [isLogin]);
-  const getItems = async () =>{
+
+  const getItems = async () => {
     const result = await fetch("http://localhost:5000/items/");
     const data = await result.json();
     setItems(data);
   };
 
-  // const sum = () => {
-  //   setCount(count + 1);
-  //   console.log(count);
-  // };
-  // const resta = () => {
-  //   setCount(count - 1);
-  //   console.log(count);
-  // } ;
-
   const add = async (item) => {
-    // item.id = items.length + 1;
-    const result = await fetch("http://localhost:5000/items/",{
+    const result = await fetch("http://localhost:5000/items/", {
       method: "POST",
-      headers:{"content-type":"application/json"},
+      headers: { "content-type": "application/json" },
       body: JSON.stringify(item),
     });
     const data = await result.json();
@@ -51,50 +42,83 @@ function App() {
       method: "DELETE",
     });
     setItems(items.filter((item) => item.id !== id));
-  }
+  };
 
-  const login = async (user) =>{
-    const result = await fetch("http://localhost:5000/login/",{
-     method: "POST",
-     headers:{"content-type":"application/json"},
-    body: JSON.stringify(user),
-  });
-  const data = await result.json();
-  setisLogin(data.isLogin);
-  console.log(data);
-  return data.isLogin;
-  }
+  const login = async (user) => {
+    try {
+      const result = await fetch("http://localhost:5000/login/", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(user),
+      });
 
-  const setlogout = () => {
-    setisLogin(false);
-  }
+      if (!result.ok) throw new Error("Login failed");
+
+      const data = await result.json();
+      console.log(data);
+      setIsLogin(data.isLogin);
+      return data.isLogin;
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Login failed. Please check your credentials.");
+      return false;
+    }
+  };
+
+  const createUser = async (user) => {
+    try {
+      const result = await fetch("http://localhost:5000/create/", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(user),
+      });
+
+      if (!result.ok) throw new Error("User creation failed");
+
+      const data = await result.json();
+      console.log(data);
+      return true;
+    } catch (error) {
+      console.error("User creation failed:", error);
+      alert("User creation failed. Please try again.");
+      return false;
+    }
+  };
+
+  const logout = () => {
+    setIsLogin(false);
+  };
 
   return (
-<div>
-  <BrowserRouter>
-  {isLogin && <ResponsiveAppBar 
-  setlogout={setlogout} />}
+    <div>
+      <BrowserRouter>
+        {isLogin && <ResponsiveAppBar setlogout={logout} />}
 
-      <Routes>
-        <Route path="/" element={<Login login = {login}/>}/>
-        <Route path="/add" element={<Add add={add}/>}/>
-        <Route path="/items" element={<List items={items} ondelete={del}/>}/>
-        <Route path="/home" element={<Home />}/>
-      </Routes> 
+        <Routes>
+          {!isLogin && (
+            <>
+              <Route path="/" element={<Login login={login} />} />
+              <Route path="/create" element={<CreateUser createUser={createUser} />} />
+            </>
+          )}
 
-  </BrowserRouter>
-  
-  {/* {count}
-   <Button name={"suma"} click={sum} />
-  <Button name={"resta"} click={resta} />
-  <Button name={"mensaje"} click={() => alert("hola")}/> */}
-  
-  
+          {isLogin && (
+            <>
+              <Route path="/home" element={<Home />} />
+              <Route path="/add" element={<Add add={add} />} />
+              <Route path="/items" element={<List items={items} ondelete={del} />} />
+            </>
+          )}
 
-  
-</div>
+          {/* Redirección global según login */}
+          <Route
+            path="*"
+            element={<Navigate to={isLogin ? "/home" : "/"} />}
+          />
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 }
 
 export default App;
-    
