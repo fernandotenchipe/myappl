@@ -1,5 +1,6 @@
 import { sqlConnect, sql } from '../utils/sql.js';
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 
 export const login = async (req, res) => {
     const pool = await sqlConnect();
@@ -21,6 +22,7 @@ export const login = async (req, res) => {
     const isLogin = (hash === storedHash);
 
     if (isLogin) {
+        const token = jwt.sign({ sub: data.recordset[0].id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         return res.status(200).json({ message: 'Login success', user: data.recordset[0], isLogin: true });
     } else {
         return res.status(400).json({ message: 'Login failed', user: {}, isLogin: false });

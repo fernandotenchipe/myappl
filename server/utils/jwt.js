@@ -11,4 +11,13 @@ validateJWT.use((req, res, next) => {
     if(token.startsWith("Bearer ")){
         token =token.split(" ")[1];
     }
+    jwt.verify(token, process.env.JWT_SECRET, (e, decoded) => {
+        if (e) {
+            res.status(401).json({ message: "Invalid token" + e.message });
+        }
+        else {
+            req.user = decoded;
+            next();
+        }
+    });
 })
