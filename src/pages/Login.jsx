@@ -7,14 +7,14 @@ const Login = ({ login }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     if (!username || !password) {
       alert("Llene todos los campos");
       return;
     }
 
-    const islogin = login({ username, password });
+    const islogin = await login({ username, password });
     if (islogin) {
       setPassword("");
       setUsername("");

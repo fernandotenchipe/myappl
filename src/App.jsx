@@ -21,28 +21,45 @@ function App() {
   }, [isLogin]);
 
   const getItems = async () => {
-    const result = await fetch("http://localhost:5000/items/");
+    const token = localStorage.getItem("token");
+    console.log("Token enviado:", token);
+    const result = await fetch("http://localhost:5000/items/", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     const data = await result.json();
     setItems(data);
   };
+  
 
   const add = async (item) => {
+    const token = localStorage.getItem("token");
     const result = await fetch("http://localhost:5000/items/", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(item),
     });
     const data = await result.json();
     setItems([...items, data.item]);
     console.log(items);
   };
+  
 
   const del = async (id) => {
+    const token = localStorage.getItem("token");
     await fetch(`http://localhost:5000/items/` + id, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     setItems(items.filter((item) => item.id !== id));
   };
+  
 
   const login = async (user) => {
     try {
@@ -51,11 +68,13 @@ function App() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify(user),
       });
-
+  
       if (!result.ok) throw new Error("Login failed");
-
+  
       const data = await result.json();
       console.log(data);
+      // Guarda el token en localStorage
+      localStorage.setItem("token", data.token);
       setIsLogin(data.isLogin);
       return data.isLogin;
     } catch (error) {
@@ -64,6 +83,7 @@ function App() {
       return false;
     }
   };
+  
 
   const createUser = async (user) => {
     try {

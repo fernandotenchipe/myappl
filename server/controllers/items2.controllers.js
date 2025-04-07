@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import Item from "../models/item.model.js";
+import Item from "../utils/item.model.js";
 
 export const getItems = async(req, res ) =>{
     const items = await Item.find();
